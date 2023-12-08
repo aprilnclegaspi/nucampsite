@@ -22,6 +22,8 @@ const CampsiteInfoScreen = ({ route }) => {
     };
 
     return (
+
+        // Flatlist will properly calculate scroll height for the page, will also make page scrollable.
         <FlatList
             data={comments.filter(
                 (comment) => comment.campsiteId === campsite.id
