@@ -1,12 +1,12 @@
 import { useState } from 'react';
 import { FlatList, StyleSheet, Text, View } from 'react-native';
 import RenderCampsite from '../features/campsites/RenderCampsite';
-import { COMMENTS } from '../shared/comments';
+import { useSelector } from 'react-redux';
 
 const CampsiteInfoScreen = ({ route }) => {
     const { campsite } = route.params;
+    const comments = useSelector((state) => state.comments);
 
-    const [comments, setComments] = useState(COMMENTS);
     const [favorite, setFavorite] = useState(false);
 
     const renderCommentItem = ({ item }) => {
@@ -25,7 +25,7 @@ const CampsiteInfoScreen = ({ route }) => {
 
         // Flatlist will properly calculate scroll height for the page, will also make page scrollable.
         <FlatList
-            data={comments.filter(
+            data={comments.commentsArray.filter(
                 (comment) => comment.campsiteId === campsite.id
             )}
             renderItem={renderCommentItem}
