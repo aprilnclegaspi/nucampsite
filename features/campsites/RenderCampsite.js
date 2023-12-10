@@ -1,3 +1,4 @@
+import { useRef } from 'react';
 import {
     StyleSheet,
     Text,
@@ -12,11 +13,19 @@ import * as Animatable from 'react-native-animatable';
 const RenderCampsite = (props) => {
     const { campsite } = props;
 
+    const view = useRef();
+
     //dx = distance of a gesture across the x axis
     const isLeftSwipe = ({ dx }) => dx < -200;
 
     const panResponder = PanResponder.create({
         onStartShouldSetPanResponder: () => true,
+        onPanResponderGrant: () => {
+            view.current
+                .rubberBand(1000)
+                .then((endState) => console.log(endState.finished ? 'finished' : 'canceled')
+                );
+        },
         onPanResponderEnd: (e, gestureState) => {
             console.log('pan responder end', gestureState);
             if (isLeftSwipe(gestureState)) {
@@ -42,10 +51,12 @@ const RenderCampsite = (props) => {
 
     if (campsite) {
         return (
+            // Animatable View is a class component, we can set a ref prop on it
             <Animatable.View
                 animation='fadeInDownBig'
                 duration={2000}
                 delay={1000}
+                ref={view}
                 {...panResponder.panHandlers}
             >
                 <Card containerStyle={styles.cardContainer}>
