@@ -6,6 +6,9 @@ import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import * as ImagePicker from 'expo-image-picker';
 import { baseUrl } from '../shared/baseUrl';
 import logo from '../assets/images/logo.png';
+import * as ImageManipulator from 'expo-image-manipulator';
+import * as MediaLibrary from 'expo-media-library';
+
 
 const LoginTab = ({ navigation }) => {
     const [username, setUsername] = useState('');
@@ -146,9 +149,57 @@ const RegisterTab = () => {
                 allowsEditing: true,
                 aspect: [1, 1]
             });
-            if (capturedImage.assets) {
-                console.log(capturedImage.assets[0]);
-                setImageUrl(capturedImage.assets[0].uri);
+            if (!capturedImage.canceled) {
+                // i wanted to match the format as best i could
+                // this will output the non-null properties in capturedImage.
+                console.log(
+                    "Captured Image Info:",
+                    JSON.stringify(
+                        capturedImage,
+                        (key, value) => (value !== null ? value : undefined),
+                        2
+                    )
+                );
+                processImage(capturedImage.assets[0].uri);
+                MediaLibrary.saveToLibraryAsync(capturedImage.assets[0].uri);
+            }
+        }
+    };
+
+    const processImage = async (imgUri) => {
+        const processedImage = await ImageManipulator.manipulateAsync(
+            imgUri,
+            [
+                { resize: { height: 400, width: 400 } }
+            ],
+            { compress: 1, format: ImageManipulator.SaveFormat.PNG }
+        );
+        //I wanted to match the format from the instructions
+        // null is used as a replacer function -> all it does is allow me to customize the output.
+        // if the value is not null, the value will be included, otherwise a null value will be omitted. 
+        console.log("Processed Image Info:", JSON.stringify(
+            processedImage,
+            (key, value) => (value !== null ? value : undefined),
+            2
+        )
+        );
+
+        //update the the image
+        setImageUrl(processedImage.uri);
+
+
+    };
+
+    const getImageFromGallery = async () => {
+        const mediaLibraryPermissions = await ImagePicker.requestMediaLibraryPermissionsAsync();
+        if (mediaLibraryPermissions.status === 'granted') {
+            const capturedImage = await ImagePicker.launchImageLibraryAsync({
+                allowsEditing: true,
+                aspect: [1, 1]
+            });
+            if (!capturedImage.canceled) {
+                console.log("IMAGE FROM GALLERY INFO", capturedImage.assets[0]);
+                processImage(capturedImage.assets[0].uri);
             }
         }
     };
@@ -163,6 +214,7 @@ const RegisterTab = () => {
                         style={styles.image}
                     />
                     <Button title='Camera' onPress={getImageFromCamera} />
+                    <Button title='Gallery' onPress={getImageFromGallery} />
                 </View>
                 <Input
                     placeholder='Username'
