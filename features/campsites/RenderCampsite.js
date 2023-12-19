@@ -4,7 +4,8 @@ import {
     Text,
     View,
     PanResponder,
-    Alert
+    Alert,
+    Share
 } from 'react-native';
 import { Card, Icon } from 'react-native-elements';
 import { baseUrl } from '../../shared/baseUrl';
@@ -56,6 +57,21 @@ const RenderCampsite = (props) => {
         }
     });
 
+    const shareCampsite = (title, message, url) => {
+        Share.share(
+            {
+                title,
+                message: `${title}: ${message} ${url}`,
+                url
+            },
+            //dialogTitle is for android only
+            {
+                dialogTitle: 'Share ' + title
+            }
+        );
+    };
+
+
     if (campsite) {
         return (
             // Animatable View is a class component, we can set a ref prop on it
@@ -93,6 +109,20 @@ const RenderCampsite = (props) => {
                             raised //shadow effect
                             reverse //reverse color
                             onPress={() => props.onShowModal()}
+                        />
+                        <Icon
+                            name='share'
+                            type='font-awesome'
+                            color='#5637DD'
+                            raised
+                            reverse
+                            onPress={() =>
+                                shareCampsite(
+                                    campsite.name,
+                                    campsite.description,
+                                    baseUrl + campsite.image
+                                )
+                            }
                         />
                     </View>
                 </Card>
