@@ -17,6 +17,7 @@ const RenderCampsite = (props) => {
 
     //dx = distance of a gesture across the x axis
     const isLeftSwipe = ({ dx }) => dx < -200;
+    const isRightSwipe = ({ dx }) => dx > 200;
 
     const panResponder = PanResponder.create({
         onStartShouldSetPanResponder: () => true,
@@ -26,6 +27,10 @@ const RenderCampsite = (props) => {
                 .then((endState) => console.log(endState.finished ? 'finished' : 'canceled')
                 );
         },
+        /*  
+        swiping right to left = adding to favorites
+        swiping left to right = adding a comment 
+        */
         onPanResponderEnd: (e, gestureState) => {
             console.log('pan responder end', gestureState);
             if (isLeftSwipe(gestureState)) {
@@ -45,6 +50,8 @@ const RenderCampsite = (props) => {
                     ],
                     { cancelable: false }
                 );
+            } else if (isRightSwipe(gestureState)) {
+                props.onShowModal();
             }
         }
     });
